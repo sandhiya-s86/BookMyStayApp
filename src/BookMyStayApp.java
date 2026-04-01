@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Queue;
+import java.util.LinkedList;
 
 // Abstract class
 abstract class Room {
@@ -48,25 +50,16 @@ public class BookMyStayApp {
         // ===== UC1 =====
         System.out.println("=======================================");
         System.out.println("      Welcome to Book My Stay App      ");
-        System.out.println("   Hotel Booking Management System     ");
-        System.out.println("             Version 1.0               ");
         System.out.println("=======================================");
 
-        System.out.println("Application started successfully.");
-
         // ===== UC2 =====
-        int singleAvailable = 5;
-        int doubleAvailable = 3;
-        int suiteAvailable = 0; // purposely 0 to test filtering
+        int singleAvailable = 2;
+        int doubleAvailable = 1;
+        int suiteAvailable = 0;
 
         Room r1 = new SingleRoom();
         Room r2 = new DoubleRoom();
         Room r3 = new SuiteRoom();
-
-        System.out.println("\n===== Room Availability (UC2) =====");
-        r1.displayDetails(singleAvailable);
-        r2.displayDetails(doubleAvailable);
-        r3.displayDetails(suiteAvailable);
 
         // ===== UC3 =====
         ArrayList<Room> inventory = new ArrayList<>();
@@ -76,23 +69,45 @@ public class BookMyStayApp {
 
         int[] availability = {singleAvailable, doubleAvailable, suiteAvailable};
 
-        System.out.println("\n===== Central Inventory (UC3) =====");
-        for (int i = 0; i < inventory.size(); i++) {
-            inventory.get(i).displayDetails(availability[i]);
-        }
-
         // ===== UC4 =====
-        System.out.println("\n===== Room Search (UC4) =====");
-
-        // READ-ONLY SEARCH (no modification)
+        System.out.println("\nAvailable Rooms:");
         for (int i = 0; i < inventory.size(); i++) {
-
-            if (availability[i] > 0) { // filter available rooms only
+            if (availability[i] > 0) {
                 inventory.get(i).displayDetails(availability[i]);
             }
         }
 
-        System.out.println("Search completed (No data modified).");
+        // ===== UC5 =====
+        System.out.println("\n===== Booking Requests (UC5 - FIFO) =====");
+
+        // Queue for booking requests
+        Queue<Integer> bookingQueue = new LinkedList<>();
+
+        // Requests: 0=Single, 1=Double, 2=Suite
+        bookingQueue.add(0);
+        bookingQueue.add(1);
+        bookingQueue.add(0);
+        bookingQueue.add(2); // will fail (no suite)
+
+        while (!bookingQueue.isEmpty()) {
+            int request = bookingQueue.poll();
+
+            System.out.println("\nProcessing request for: " + inventory.get(request).type);
+
+            if (availability[request] > 0) {
+                availability[request]--;
+                System.out.println("Booking SUCCESSFUL");
+            } else {
+                System.out.println("Booking FAILED (No rooms available)");
+            }
+        }
+
+        // Final availability
+        System.out.println("\n===== Final Availability =====");
+        for (int i = 0; i < inventory.size(); i++) {
+            inventory.get(i).displayDetails(availability[i]);
+        }
+
         System.out.println("Application Ended.");
     }
 }
