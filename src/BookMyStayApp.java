@@ -1,8 +1,12 @@
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-// Abstract class
+// ===== Abstract class =====
 abstract class Room {
     String type;
     int beds;
@@ -23,7 +27,7 @@ abstract class Room {
     }
 }
 
-// Subclasses
+// ===== Subclasses =====
 class SingleRoom extends Room {
     SingleRoom() {
         super("Single Room", 1, 1000);
@@ -42,7 +46,68 @@ class SuiteRoom extends Room {
     }
 }
 
-// Main class
+// ===== UC6: Reservation Class =====
+class Reservation {
+    String guestName;
+    int roomType; // 0=Single, 1=Double, 2=Suite
+
+    Reservation(String guestName, int roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
+    }
+}
+
+// ===== UC6: Room Allocation Service =====
+class RoomAllocationService {
+
+    private Set<String> allocatedRoomIds = new HashSet<>();
+    private Map<String, Set<String>> assignedRoomsByType = new HashMap<>();
+    private Map<String, Integer> counters = new HashMap<>();
+
+    public RoomAllocationService() {
+        counters.put("Single Room", 0);
+        counters.put("Double Room", 0);
+        counters.put("Suite Room", 0);
+    }
+
+    public void allocateRoom(Reservation reservation, ArrayList<Room> inventory, int[] availability) {
+
+        Room room = inventory.get(reservation.roomType);
+
+        System.out.println("\nProcessing reservation for: " + reservation.guestName +
+                " (" + room.type + ")");
+
+        if (availability[reservation.roomType] <= 0) {
+            System.out.println("Booking FAILED - No rooms available");
+            return;
+        }
+
+        // Generate unique room ID
+        String roomId = generateRoomId(room.type);
+
+        // Store unique IDs
+        allocatedRoomIds.add(roomId);
+
+        // Map room type → allocated IDs
+        assignedRoomsByType.putIfAbsent(room.type, new HashSet<>());
+        assignedRoomsByType.get(room.type).add(roomId);
+
+        // Update inventory immediately
+        availability[reservation.roomType]--;
+
+        System.out.println("Booking CONFIRMED for " + reservation.guestName +
+                " | Room ID: " + roomId);
+    }
+
+    private String generateRoomId(String roomType) {
+        int count = counters.get(roomType) + 1;
+        counters.put(roomType, count);
+
+        return roomType.split(" ")[0] + "-" + count;
+    }
+}
+
+// ===== MAIN CLASS =====
 public class BookMyStayApp {
 
     public static void main(String[] args) {
@@ -80,14 +145,12 @@ public class BookMyStayApp {
         // ===== UC5 =====
         System.out.println("\n===== Booking Requests (UC5 - FIFO) =====");
 
-        // Queue for booking requests
         Queue<Integer> bookingQueue = new LinkedList<>();
 
-        // Requests: 0=Single, 1=Double, 2=Suite
         bookingQueue.add(0);
         bookingQueue.add(1);
         bookingQueue.add(0);
-        bookingQueue.add(2); // will fail (no suite)
+        bookingQueue.add(2); // will fail
 
         while (!bookingQueue.isEmpty()) {
             int request = bookingQueue.poll();
@@ -102,7 +165,23 @@ public class BookMyStayApp {
             }
         }
 
-        // Final availability
+        // ===== UC6 =====
+        System.out.println("\n===== UC6: Reservation Confirmation & Room Allocation =====");
+
+        Queue<Reservation> reservationQueue = new LinkedList<>();
+
+        reservationQueue.add(new Reservation("Abhi", 0));
+        reservationQueue.add(new Reservation("Subha", 0));
+        reservationQueue.add(new Reservation("Vanmathi", 2)); // fail
+
+        RoomAllocationService service = new RoomAllocationService();
+
+        while (!reservationQueue.isEmpty()) {
+            Reservation res = reservationQueue.poll();
+            service.allocateRoom(res, inventory, availability);
+        }
+
+        // ===== Final Availability =====
         System.out.println("\n===== Final Availability =====");
         for (int i = 0; i < inventory.size(); i++) {
             inventory.get(i).displayDetails(availability[i]);
