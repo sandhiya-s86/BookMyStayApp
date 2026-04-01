@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
+// Abstract class
 abstract class Room {
     String type;
     int beds;
@@ -44,7 +45,7 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        // ===== Use Case 1 =====
+        // ===== UC1 =====
         System.out.println("=======================================");
         System.out.println("      Welcome to Book My Stay App      ");
         System.out.println("   Hotel Booking Management System     ");
@@ -52,41 +53,46 @@ public class BookMyStayApp {
         System.out.println("=======================================");
 
         System.out.println("Application started successfully.");
-        System.out.println("Thank you for using Book My Stay.");
 
-        // ===== Use Case 2 =====
+        // ===== UC2 =====
         int singleAvailable = 5;
         int doubleAvailable = 3;
-        int suiteAvailable = 2;
+        int suiteAvailable = 0; // purposely 0 to test filtering
 
         Room r1 = new SingleRoom();
         Room r2 = new DoubleRoom();
         Room r3 = new SuiteRoom();
 
         System.out.println("\n===== Room Availability (UC2) =====");
-
         r1.displayDetails(singleAvailable);
         r2.displayDetails(doubleAvailable);
         r3.displayDetails(suiteAvailable);
 
-        // ===== Use Case 3 =====
-        System.out.println("\n===== Centralized Room Inventory (UC3) =====");
-
-        // Central inventory using ArrayList
+        // ===== UC3 =====
         ArrayList<Room> inventory = new ArrayList<>();
-
         inventory.add(r1);
         inventory.add(r2);
         inventory.add(r3);
 
-        // Availability array
         int[] availability = {singleAvailable, doubleAvailable, suiteAvailable};
 
-        // Display using loop
+        System.out.println("\n===== Central Inventory (UC3) =====");
         for (int i = 0; i < inventory.size(); i++) {
             inventory.get(i).displayDetails(availability[i]);
         }
 
+        // ===== UC4 =====
+        System.out.println("\n===== Room Search (UC4) =====");
+
+        // READ-ONLY SEARCH (no modification)
+        for (int i = 0; i < inventory.size(); i++) {
+
+            if (availability[i] > 0) { // filter available rooms only
+                inventory.get(i).displayDetails(availability[i]);
+            }
+        }
+
+        System.out.println("Search completed (No data modified).");
         System.out.println("Application Ended.");
     }
 }
