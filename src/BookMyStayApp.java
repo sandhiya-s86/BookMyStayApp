@@ -1,7 +1,4 @@
-/**
- * Combined Use Case 1 + Use Case 2
- * Book My Stay Application
- */
+import java.util.ArrayList;
 
 abstract class Room {
     String type;
@@ -58,8 +55,6 @@ public class BookMyStayApp {
         System.out.println("Thank you for using Book My Stay.");
 
         // ===== Use Case 2 =====
-        System.out.println("\n===== Room Availability =====");
-
         int singleAvailable = 5;
         int doubleAvailable = 3;
         int suiteAvailable = 2;
@@ -68,9 +63,29 @@ public class BookMyStayApp {
         Room r2 = new DoubleRoom();
         Room r3 = new SuiteRoom();
 
+        System.out.println("\n===== Room Availability (UC2) =====");
+
         r1.displayDetails(singleAvailable);
         r2.displayDetails(doubleAvailable);
         r3.displayDetails(suiteAvailable);
+
+        // ===== Use Case 3 =====
+        System.out.println("\n===== Centralized Room Inventory (UC3) =====");
+
+        // Central inventory using ArrayList
+        ArrayList<Room> inventory = new ArrayList<>();
+
+        inventory.add(r1);
+        inventory.add(r2);
+        inventory.add(r3);
+
+        // Availability array
+        int[] availability = {singleAvailable, doubleAvailable, suiteAvailable};
+
+        // Display using loop
+        for (int i = 0; i < inventory.size(); i++) {
+            inventory.get(i).displayDetails(availability[i]);
+        }
 
         System.out.println("Application Ended.");
     }
