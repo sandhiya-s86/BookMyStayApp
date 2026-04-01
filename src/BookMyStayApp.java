@@ -97,13 +97,8 @@ class Service {
         this.cost = cost;
     }
 
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public double getCost() {
-        return cost;
-    }
+    public String getServiceName() { return serviceName; }
+    public double getCost() { return cost; }
 }
 
 // ===== UC7: Add-On Manager =====
@@ -130,12 +125,43 @@ class AddOnServiceManager {
                 total += s.getCost();
             }
         }
-
         return total;
     }
 }
 
-// ===== MAIN =====
+// ===== UC8: Booking History =====
+class BookingHistory {
+
+    private List<Reservation> confirmedReservations;
+
+    public BookingHistory() {
+        confirmedReservations = new ArrayList<>();
+    }
+
+    public void addReservation(Reservation reservation) {
+        confirmedReservations.add(reservation);
+    }
+
+    public List<Reservation> getConfirmedReservations() {
+        return confirmedReservations;
+    }
+}
+
+// ===== UC8: Reporting =====
+class BookingReportService {
+
+    public void generateReport(BookingHistory history) {
+
+        System.out.println("\n===== Booking History Report =====");
+
+        for (Reservation r : history.getConfirmedReservations()) {
+            System.out.println("Guest: " + r.guestName +
+                    " | Room ID: " + r.roomId);
+        }
+    }
+}
+
+// ===== MAIN CLASS =====
 public class BookMyStayApp {
 
     public static void main(String[] args) {
@@ -206,6 +232,17 @@ public class BookMyStayApp {
 
         System.out.println("Reservation ID: " + id1);
         System.out.println("Total Add-On Cost: " + totalCost);
+
+        // ===== UC8 =====
+        System.out.println("\n===== UC8 Booking History & Reporting =====");
+
+        BookingHistory history = new BookingHistory();
+
+        if (id1 != null) history.addReservation(r1);
+        if (id2 != null) history.addReservation(r2);
+
+        BookingReportService reportService = new BookingReportService();
+        reportService.generateReport(history);
 
         System.out.println("\nApplication Ended.");
     }
